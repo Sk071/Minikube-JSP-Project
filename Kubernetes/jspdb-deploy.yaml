@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jspdb
+  labels:
+    app: jspdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jspdb
+  template:
+    metadata:
+      labels:
+        app: jspdb
+    spec:
+      containers:
+      - name: jspdb
+        image: kubesk071/jspdb:k8s-v1
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: jspdemoproject
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: jspdb-secret
+              key: password
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: jsppvc
+
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jspdb
+spec:
+  selector:
+    app: jspdb
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+  clusterIP: None
