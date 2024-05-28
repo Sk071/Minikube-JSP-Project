@@ -1,37 +1,46 @@
-Install Minikube using Docker
+Create Cluster 
 
-sudo apt install docker.io
-
-sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
-
-
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
-sudo dpkg -i minikube_latest_amd64.deb
+eksctl create cluster --name=my-eks22 \
+                      --region=ap-south-1 \
+                      --zones=ap-south-1a,ap-south-1b \
+                      --version=1.30 \
+                      --without-nodegroup
 
 
-sudo apt install minikube
-
-****************************************************************************************************************
-
-Install Kubectl 
-
- curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-
- sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
- minikube start
-
- ****************************************************************************************************************
-
- install argocd inside minikube
-
- kubectl create namespace argocd
-
- kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+eksctl utils associate-iam-oidc-provider \
+    --region ap-south-1 \
+    --cluster my-eks22 \
+    --approve
 
 
+eksctl create nodegroup --cluster=my-eks22 \
+                       --region=ap-south-1 \
+                       --name=node2 \
+                       --node-type=t3.medium \
+                       --nodes=3 \
+                       --nodes-min=2 \
+                       --nodes-max=4 \
+                       --node-volume-size=20 \
+                       --ssh-access \
+                       --ssh-public-key=Key \
+                       --managed \
+                       --asg-access \
+                       --external-dns-access \
+                       --full-ecr-access \
+                       --appmesh-access \
+                       --alb-ingress-access
 
 
- 
+
+create argocd 
+
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+kubectl port-forward svc/argocd-server -n argocd 80:443
+
+argocd admin initial-password -n argocd
 
 
+eksctl delete cluster clustername
+                
