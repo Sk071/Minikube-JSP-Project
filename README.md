@@ -1,28 +1,27 @@
 Create Cluster 
 
 eksctl create cluster --name=my-eks22 \
-                      --region=ap-south-1 \
-                      --zones=ap-south-1a,ap-south-1b \
+                      --region=us-east-1 \
                       --version=1.30 \
                       --without-nodegroup
 
 
 eksctl utils associate-iam-oidc-provider \
-    --region ap-south-1 \
+    --region us-east-1 \
     --cluster my-eks22 \
     --approve
 
 
 eksctl create nodegroup --cluster=my-eks22 \
-                       --region=ap-south-1 \
+                       --region=us-east-1 \
                        --name=node2 \
-                       --node-type=t3.medium \
-                       --nodes=3 \
+                       --node-type=t2.medium \
+                       --nodes=2 \
                        --nodes-min=2 \
                        --nodes-max=4 \
-                       --node-volume-size=20 \
+                       --node-volume-size=15 \
                        --ssh-access \
-                       --ssh-public-key=Key \
+                       --ssh-public-key=itadmin-key \
                        --managed \
                        --asg-access \
                        --external-dns-access \
